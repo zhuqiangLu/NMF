@@ -3,6 +3,43 @@ import argparse
 def parse_opt():
     parser = argparse.ArgumentParser()
 
+    '''
+    ==========================
+    |         Training        |
+    ==========================
+    '''
+    parser.add_argument(
+        '--epoch',
+        type=int,
+        default=1
+    )
+
+    parser.add_argument(
+        '--hidden_dim',
+        type=int,
+        default=100
+    )
+
+    '''
+    ==========================
+    |         NMF            |
+    ==========================
+    '''
+    parser.add_argument(
+        '--NMF_OBJ',
+        type=str,
+        default="MSE"
+    )
+
+
+
+
+    '''
+    ==========================
+    |         DATA           |
+    ==========================
+    '''
+
     parser.add_argument(
         '--root',
         type=str,
@@ -11,13 +48,61 @@ def parse_opt():
     parser.add_argument(
         '--reduce',
         type=int,
-        default=2
+        default=4
     )
     parser.add_argument(
         '--split_ratio',
         type=float,
         default=0.9
     )
+
+    '''
+    ==========================
+    |         NOISE          |
+    ==========================
+    '''
+
+    parser.add_argument(
+        '--noise',
+        type=str,
+        default='salt_and_peppers'
+    )
+
+
+    # salt and pepper parameters
+    # ratio of noise
+    parser.add_argument(
+        '--p',
+        type=float,
+        default=0.2
+    )
+    # ratio of salt
+    parser.add_argument(
+        '--r',
+        type=float,
+        default=0.2
+    )
+
+    # guassian white noise
+    # mean
+    parser.add_argument(
+        '--mu',
+        type=int,
+        default=0
+    )
+    # std div
+    parser.add_argument(
+        '--sigma',
+        type=int,
+        default=1
+    )
+    # k
+    parser.add_argument(
+        '--k',
+        type=int,
+        default=64
+    )
+    
     
 
     args = parser.parse_args()

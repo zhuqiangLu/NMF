@@ -79,7 +79,7 @@ def parse_opt():
     parser.add_argument(
         '--noise',
         type=str,
-        default='salt_and_peppers'
+        default='salt_and_pepper'
     )
 
 

@@ -20,6 +20,20 @@ def parse_opt():
         default=100
     )
 
+    parser.add_argument(
+        '--iters',
+        type=int,
+        default=500
+    )
+
+    parser.add_argument(
+        '--tol',
+        type=int,
+        default=1e-3
+    )
+
+
+
     '''
     ==========================
     |         NMF            |
@@ -48,7 +62,7 @@ def parse_opt():
     parser.add_argument(
         '--reduce',
         type=int,
-        default=4
+        default=2
     )
     parser.add_argument(
         '--split_ratio',

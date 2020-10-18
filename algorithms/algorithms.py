@@ -14,31 +14,18 @@ def KL_Divergence(X, X_hat):
 
 
 
-def MUR_MSE(X, D, R, steps=100, tol=1e-3):
+def MUR_MSE(X, D, R, steps=50, tol=1e-3):
     step = 0
-   
+    diff = tol * 10.0
 
-    while step < steps:
+    while step < steps or diff < tol:
 
-        # R_tmp = R
-        # D_tmp = D
-        
         R = R * ((np.dot(D.T, X)/(np.dot(np.dot(D.T, D), R))))+1e-7
-        #print(R.shape, (np.dot(D.T, X)).shape, ((np.dot(np.dot(D.T, D), R))).shape)
         D = D * ((np.dot(X, R.T))/(np.dot(np.dot(D, R), R.T)))+1e-7
 
-        # #e_r = MSE(R_tmp, R)
-        # e_r = np.sqrt(np.sum((R_tmp-R)**2, axis=(0,1)))/R.size
-        # #e_d = MSE(D_tmp, D) 
-        # e_d = np.sqrt(np.sum((D_tmp-D)**2, axis=(0,1)))/D.size
-        # #print(step, e_r, e_d)
-        print(step, MSE(X, D.dot(R)))
-        # if e_r < tol and e_d < tol:
-        #     break
-        #print(step)
+        diff = MSE(X, D.dot(R))
         step += 1
-        
-
+        print(step, MSE(X, D.dot(R)))
     return D, R
 
 def MUR_KL(X, D, R, steps=5000, tol=1e-3):
@@ -66,7 +53,7 @@ def MUR_KL(X, D, R, steps=5000, tol=1e-3):
 
 
 
-def NMF(X, hidden_dim, obj="MSE"):
+def NMF(X, hidden_dim, iters, obj="MSE"):
     '''
         implementation of algorithm presented in 
         https://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization.pdf
@@ -80,7 +67,7 @@ def NMF(X, hidden_dim, obj="MSE"):
         D = np.random.rand(N, hidden_dim) *40
         R = np.random.rand(hidden_dim, C) *40
         #D, R = MUR_MSE(X, D, R)
-        D, R = MUR_MSE(X, D, R)
+        D, R = MUR_MSE(X, D, R, steps=iters)
         return D, R
     else:
         # D, R initializaiton

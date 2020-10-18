@@ -23,14 +23,16 @@ def parse_opt():
     parser.add_argument(
         '--iters',
         type=int,
-        default=500
+        default=1000
     )
 
     parser.add_argument(
         '--tol',
         type=int,
-        default=1e-3
+        default=1e-7
     )
+
+    
 
 
 

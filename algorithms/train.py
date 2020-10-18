@@ -38,18 +38,18 @@ def main():
     RRE_list = list()
     import sklearn
     for i in range(opts["epoch"]):
-        D, R = NMF(X_train_noise.T, hidden_dim=opts["hidden_dim"], obj=opts["NMF_OBJ"], iters=opts['iters'])
+        D, R = NMF(X_train_noise.T, hidden_dim=opts["hidden_dim"], obj=opts["NMF_OBJ"], iters=opts['iters'], tol=opts['tol'])
         
         
         rre = RRE(X_train_clean.T, D.dot(R))
         # print(rre)
 
 
-        rre_noise(X_train_clean, X_train_noise)
+        rre_noise= RRE(X_train_clean, X_train_noise)
         Image.fromarray(X_train_clean[15,:].reshape(ori_shape), "L").save("test_ori.png")
         Image.fromarray(X_train_noise[15,:].reshape(ori_shape), "L").save("test_noise.png")
         Image.fromarray(D.dot(R[:,15]).astype(np.uint8).reshape(ori_shape), "L").save("test_recon.png")
-        pritn("ori recon rre: {} || ori noise rre {}".format(rre, ))
+        print("ori recon rre: {} || ori noise rre {}".format(rre, rre_noise))
         # for j in range(100):
             
         #     Image.fromarray(D[:,j].astype(np.uint8).reshape((ori_shape)), "L").save("D{}.png".format(j))

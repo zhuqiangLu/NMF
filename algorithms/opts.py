@@ -17,13 +17,13 @@ def parse_opt():
     parser.add_argument(
         '--hidden_dim',
         type=int,
-        default=100
+        default=400
     )
 
     parser.add_argument(
         '--iters',
         type=int,
-        default=1000
+        default=200
     )
 
     parser.add_argument(
@@ -44,7 +44,7 @@ def parse_opt():
     parser.add_argument(
         '--NMF_OBJ',
         type=str,
-        default="MSE"
+        default="L21"
     )
 
 

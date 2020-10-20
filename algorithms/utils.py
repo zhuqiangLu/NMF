@@ -6,6 +6,12 @@ from sklearn.model_selection import train_test_split
 
 
 
+def positive_init(dim1, dim2):
+    m = np.random.normal(4, 1, (dim1, dim2))
+    # normalize
+
+    m = (m-m.min())/(m.max() - m.min())
+    return m
 def load_data(root='data/CroppedYaleB', reduce=4):
     """ 
     Load ORL (or Extended YaleB) dataset to numpy array.

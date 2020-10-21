@@ -70,7 +70,7 @@ def main():
 
         OBJ_RRE[obj] = RRE_list
     
-    with open('result.json', "w") as f:
+    with open('result/result.json', "w") as f:
         json.dump(OBJ_RRE, f, indent=4)   
 if __name__ == "__main__":
     main()

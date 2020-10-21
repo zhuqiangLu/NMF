@@ -38,7 +38,7 @@ def main():
     #print(X_train_clean.shape)
     
     OBJ_RRE = dict()
-    OBJ_RRE["settings"] = {
+    OBJ_RRE["noise"] = {
         "noise": opts["noise"],
         "p": opts['p'],
         "r": opts['r'],
@@ -46,6 +46,12 @@ def main():
         'sigma': opts['sigma'],
         'k': opts['k'],
     }
+
+    OBJ_RRE["settings"] = {
+        "n_component": opts['hidden_dim'],
+        "iters": opts["iters"] 
+    }
+
     for obj in objs:
 
         RRE_list = list()

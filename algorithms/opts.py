@@ -11,7 +11,7 @@ def parse_opt():
     parser.add_argument(
         '--epoch',
         type=int,
-        default=1
+        default=5
     )
 
     parser.add_argument(
@@ -23,7 +23,7 @@ def parse_opt():
     parser.add_argument(
         '--iters',
         type=int,
-        default=100
+        default=1
     )
 
     parser.add_argument(

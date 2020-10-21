@@ -26,7 +26,7 @@ def main():
         X_train_noise = salt_and_pepper_noise(X_train, p=opts["p"], r=opts["r"])
 
     elif opts["noise"] == "gaussian":
-        print("using salt and pepper noise")
+        print("using gaussian")
         X_train_noise = gaussian_noise(X_train, mu=opts["mu"], sigma=opts["sigma"], k=opts["k"])
 
     else:

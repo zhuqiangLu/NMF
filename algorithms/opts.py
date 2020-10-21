@@ -17,13 +17,13 @@ def parse_opt():
     parser.add_argument(
         '--hidden_dim',
         type=int,
-        default=400
+        default=100
     )
 
     parser.add_argument(
         '--iters',
         type=int,
-        default=200
+        default=100
     )
 
     parser.add_argument(
@@ -44,7 +44,7 @@ def parse_opt():
     parser.add_argument(
         '--NMF_OBJ',
         type=str,
-        default="L21"
+        default="ROBUSTL1"
     )
 
 
@@ -64,7 +64,7 @@ def parse_opt():
     parser.add_argument(
         '--reduce',
         type=int,
-        default=2
+        default=4
     )
     parser.add_argument(
         '--split_ratio',
@@ -81,7 +81,7 @@ def parse_opt():
     parser.add_argument(
         '--noise',
         type=str,
-        default='salt_and_pepper'
+        default='gaussian'
     )
 
 

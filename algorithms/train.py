@@ -39,23 +39,28 @@ def main():
     import sklearn
     for i in range(opts["epoch"]):
     
-        D, R = NMF(X_train_noise.T, hidden_dim=opts["hidden_dim"], obj=opts["NMF_OBJ"], iters=opts['iters'], tol=opts['tol'])
+        D, R, E = NMF(X_train_noise.T, hidden_dim=opts["hidden_dim"], obj=opts["NMF_OBJ"], iters=opts['iters'], tol=opts['tol'])
+
+        # from test import L1RegularizationNMF as NMF_r
+        # model = NMF_r(10)
+        # D, R, E= model.fit(X_train_noise, max_iter=100)
+        # print(D.shape, R.shape, E.shape, X_train_clean.shape)
+
         # import sklearn
         # model = sklearn.decomposition.NMF(n_components=100, max_iter=500)
 
         # D = model.fit_transform(X_train_noise.T)
         # R = model.components_
         
-        rre = RRE(X_train_clean.T, D.dot(R))
+        rre = RRE(X_train_clean.T, D.dot(R)+E)
         # print(rre)
 
 
-        rre_noise= RRE(X_train_clean.T, X_train_noise.T)
-        rre_noise_recon= RRE(X_train_noise.T, D.dot(R))
+        
         Image.fromarray(X_train_clean[15,:].reshape(ori_shape), "L").save("test_ori.png")
         Image.fromarray(X_train_noise[15,:].reshape(ori_shape), "L").save("test_noise.png")
         Image.fromarray(D.dot(R[:,15]).astype(np.uint8).reshape(ori_shape), "L").save("test_recon.png")
-        print("ori recon rre: {} || ori noise rre {} || noise recon rre {}".format(rre, rre_noise, rre_noise_recon))
+        print("ori recon rre: {} ".format(rre))
         
        
            

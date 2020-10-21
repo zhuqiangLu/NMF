@@ -17,7 +17,7 @@ def parse_opt():
     parser.add_argument(
         '--hidden_dim',
         type=int,
-        default=100
+        default=10
     )
 
     parser.add_argument(

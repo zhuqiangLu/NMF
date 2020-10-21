@@ -79,7 +79,16 @@ def MUR_KL(X, D, R, steps=500, tol=1e-3):
         
     return D, R
 
-def MUR_L1_ROBUST(X, D, R, lamb=1e-3, steps=500, tol=1e-3):
+def MUR_L1_ROBUST(X, D, R, lamb=0.04, steps=500, tol=1e-3):
+
+    # n_features, n_samples= X.shape
+
+    # avg = np.sqrt(X.mean() / 10)
+    # R = avg * np.abs(np.random.randn(10, n_samples, ))
+    # D = avg * np.abs(np.random.randn(n_features,10, ))
+    # E = avg * np.abs(np.random.randn(n_features, n_samples, ))
+    # E = np.minimum(E, X)
+    
     E = np.random.normal(0, 1, X.shape) * 40
     E[(X-E) < 0 ] = 0
 
@@ -97,16 +106,16 @@ def MUR_L1_ROBUST(X, D, R, lamb=1e-3, steps=500, tol=1e-3):
         obj_bef = RobustNMF(X, D.dot(R), E, lamb)
         # update D
         X_hat = X-E
-        D = D * ((np.dot(X_hat, R.T))/(np.dot(np.dot(D, R), R.T)))+1e-7
+        D = D * ((np.dot(X_hat, R.T))/(np.dot(np.dot(D, R), R.T)))
 
         #update R
         zeros = np.zeros((1, k))
-        ones = np.ones((1, C))
+        es = np.sqrt(lamb) * np.exp(np.ones((1, C)))
         
         X_curl = np.vstack((X, np.zeros(((1,N)))))
         
         D_curl = np.vstack(((np.hstack((D, np.eye(C), -1*np.eye(C)))),\
-                            np.hstack((zeros, lamb*ones.copy(), lamb*ones.copy()))))
+                            np.hstack((zeros, es, es))))
         E_p = (np.abs(E) + E)/2
     
         E_n = (np.abs(E) - E)/2
@@ -115,15 +124,18 @@ def MUR_L1_ROBUST(X, D, R, lamb=1e-3, steps=500, tol=1e-3):
         S = np.abs(D_curl.T.dot(D_curl))
         R_curl = np.vstack((R, E_p, E_n))
         #print(((D_curl.T.dot(D).dot(R_curl))).shape)
-       
-        R_curl_tmp = R_curl - \
-                    (R_curl * (D_curl.T.dot(D_curl).dot(R_curl))/(S.dot(R_curl))) + \
-                    (R_curl * (D_curl.T.dot(X_curl))/(S.dot(R_curl))) 
+        
+        denom = (S.dot(R_curl))
+        mol1 = D_curl.T.dot(D_curl).dot(R_curl)
+        mol2 = D_curl.T.dot(X_curl)
+        
+        R_curl_tmp = R_curl * (1 - (mol1 - mol2)/denom)
         
         R_curl = np.maximum(np.zeros_like(R_curl), R_curl_tmp)
 
         R = R_curl[:k, :]
-        E = R_curl[k:k+C,:] + R_curl[k+C:, :]
+        #restore E
+        E = R_curl[k:k+C,:] - R_curl[k+C:, :]
         
         step += 1
         obj_aft = RobustNMF(X, D.dot(R), E, lamb)
@@ -131,7 +143,7 @@ def MUR_L1_ROBUST(X, D, R, lamb=1e-3, steps=500, tol=1e-3):
         print(step, obj_aft, diff)
 
 
-    return D, R
+    return D, R, E
 
 
 def NMF(X, hidden_dim, iters, tol, obj="MSE"):
@@ -144,6 +156,7 @@ def NMF(X, hidden_dim, iters, tol, obj="MSE"):
     
     D = positive_init(C, hidden_dim)
     R = positive_init(hidden_dim, N) 
+    E = np.zeros_like(X)
     if obj == "MSE":
         print("OBJ: MSE")
         D, R = MUR_MSE(X, D, R, steps=iters, tol=tol)
@@ -152,13 +165,13 @@ def NMF(X, hidden_dim, iters, tol, obj="MSE"):
         D, R = MUR_KL(X, D, R, steps=iters, tol=tol)
     elif obj == "L21":
         print("OBJ: L21")
-        D, R = MUR_L21(X, D, R, steps=iters, tol=tol)
+        D, R= MUR_L21(X, D, R, steps=iters, tol=tol)
     elif obj == "ROBUSTL1":
         print("OBJ: ROBUSTL1")
-        D, R = MUR_L1_ROBUST(X, D, R, steps=iters, tol=tol)
+        D, R, E = MUR_L1_ROBUST(X, D, R, steps=iters, tol=tol)
     else:
         D, R = MUR_MSE(X, D, R, steps=iters, tol=tol)
-    return D, R
+    return D, R, E
     
 
 

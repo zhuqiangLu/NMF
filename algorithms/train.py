@@ -7,7 +7,7 @@ from algorithms import NMF
 from eval import RRE, MA
 from utils import split_data, load_data
 from opts import parse_opt
-from preprocess import salt_and_pepper_noise, gaussian_noise
+from preprocess import salt_and_pepper_noise, gaussian_noise, normalize
 
 import matplotlib.pyplot as plt
 
@@ -23,21 +23,8 @@ def main():
 
     
     
-    objs = ["MSE", "KL", "L21", "ROBUSTL1"]
-    OBJ_RRE = dict()
-    OBJ_RRE["noise"] = {
-        "noise": opts["noise"],
-        "p": opts['p'],
-        "r": opts['r'],
-        'mu': opts['mu'],
-        'sigma': opts['sigma'],
-        'k': opts['k'],
-    }
-
-    OBJ_RRE["settings"] = {
-        "n_component": opts['hidden_dim'],
-        "iters": opts["iters"] 
-    }
+    objs = ["MSE",  "L21", "ROBUSTL1"]
+    
 
     for obj in objs:
 
@@ -45,7 +32,10 @@ def main():
 
         X_train, X_test, Y_train, Y_test = split_data(X, Y, opts['split_ratio'])
     
-        X_train_clean = X_train.copy()
+        X_train_clean = (X_train.copy())
+
+      
+
 
         if opts["noise"] == "salt_and_pepper":
             print("using salt and pepper noise")
@@ -53,7 +43,7 @@ def main():
 
         elif opts["noise"] == "gaussian":
             print("using gaussian")
-            X_train_noise = gaussian_noise(X_train, mu=opts["mu"], sigma=opts["sigma"], k=opts["k"])
+            X_train_noise = gaussian_noise(X_train, mu=opts["mu"], sigma=opts["sigma"])
 
         else:
             print("no noise")
@@ -61,22 +51,18 @@ def main():
         
 
         for i in range(opts["epoch"]):
-        
-            D, R, _= NMF(X_train_noise.T, hidden_dim=opts["hidden_dim"], obj=obj, iters=opts['iters'], tol=opts['tol'])
             
-            rre = RRE(X_train_clean.T, D.dot(R))
-        
+            D, R, E, rres = NMF(X_train_noise.T,X_train_clean.T,  hidden_dim=opts["hidden_dim"], obj=obj, iters=opts['iters'], tol=opts['tol'])
+            
+            recon = D.dot(R)
             Image.fromarray(X_train_clean[15,:].reshape(ori_shape), "L").save("test_ori.png")
             Image.fromarray(X_train_noise[15,:].reshape(ori_shape), "L").save("test_noise.png")
-            Image.fromarray(D.dot(R[:,15]).astype(np.uint8).reshape(ori_shape), "L").save("test_recon.png")
+            Image.fromarray(recon[:, 15].astype(np.uint8).reshape(ori_shape), "L").save("test_recon.png")
             
+            with open('result/{}_{}.json'.format(obj, i), "w") as f:
+                json.dump({"rres": rres}, f, indent=4) 
             
-            RRE_list.append(rre)
-
-        OBJ_RRE[obj] = RRE_list
-    
-    with open('result/{}_{}_{}_{}_{}_{}_{}_{}.json'.format(opts['noise'], opts['p'], opts['r'],opts['mu'],opts['sigma'],opts['k'], opts['hidden_dim'], opts['iters']), "w") as f:
-        json.dump(OBJ_RRE, f, indent=4)   
+  
 if __name__ == "__main__":
     main()
 

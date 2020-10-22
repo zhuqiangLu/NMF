@@ -1,6 +1,6 @@
 import numpy as np
 from utils import positive_init
-
+from eval import RRE
 
 def MSE(X, X_hat):
     # implementation of Mean Square Error
@@ -23,12 +23,12 @@ def RobustNMF(X, X_hat, E, lamb):
     t2 = lamb * np.linalg.norm(np.sum(E, axis=1), ord=0)
     return (t1 + t2)/X.size
 
-def MUR_L21(X, D, R, steps, tol=1e-3):
+def MUR_L21(X, D, R, X_hat,steps, tol=1e-3):
     step = 0
     diff = float("Inf")
     N = X.shape[1]
 
-    
+    rres = list()
     while step < steps and diff > tol:
         L21_bef = L21_norm(X, D.dot(R))
         
@@ -39,15 +39,16 @@ def MUR_L21(X, D, R, steps, tol=1e-3):
         R =  R * (D.T.dot(X).dot(Dig))/(D.T.dot(D).dot(R).dot(Dig))+1e-7
 
         diff = L21_bef - L21_norm(X, D.dot(R))
+        rres.append(RRE(X_hat, D.dot(R)))
         print(step, L21_norm(X, D.dot(R)), diff)
         step+=1
-    return D, R
+    return D, R, rres
 
 
-def MUR_MSE(X, D, R, steps=50, tol=1e-3):
+def MUR_MSE(X, D, R, X_hat,steps=50, tol=1e-3):
     step = 0
     diff = float("Inf")
-    
+    rres = list()
     while step < steps and diff > tol:
         MSE_bef = MSE(X, D.dot(R)) 
         R = R * ((np.dot(D.T, X)/(np.dot(np.dot(D.T, D), R))))+1e-7
@@ -55,12 +56,14 @@ def MUR_MSE(X, D, R, steps=50, tol=1e-3):
 
         diff = MSE_bef - MSE(X, D.dot(R)) 
         step += 1
+        rres.append(RRE(X_hat, D.dot(R)))
         print(step, MSE(X, D.dot(R)), diff)
-    return D, R
+    return D, R, rres
 
-def MUR_KL(X, D, R, steps=500, tol=1e-3):
+def MUR_KL(X, D, R, X_hat,steps=500, tol=1e-3):
     step = 0
     diff = float("Inf")
+    rres = list()
     while step < steps and diff > tol:
         
         KL_bef = KL_Divergence(X, D.dot(R)) 
@@ -74,12 +77,13 @@ def MUR_KL(X, D, R, steps=500, tol=1e-3):
 
         diff = KL_bef - KL_Divergence(X, D.dot(R)) 
         step += 1
+        rres.append(RRE(X_hat, D.dot(R)))
         print(step, KL_Divergence(X, D.dot(R)), diff)
         
         
-    return D, R
+    return D, R, rres
 
-def MUR_L1_ROBUST(X, D, R, lamb=0.05, steps=500, tol=1e-3):
+def MUR_L1_ROBUST(X, D, R, X_clean,lamb=0.05, steps=500, tol=1e-3):
 
     # n_features, n_samples= X.shape
 
@@ -88,7 +92,7 @@ def MUR_L1_ROBUST(X, D, R, lamb=0.05, steps=500, tol=1e-3):
     # D = avg * np.abs(np.random.randn(n_features,10, ))
     # E = avg * np.abs(np.random.randn(n_features, n_samples, ))
     # E = np.minimum(E, X)
-    
+    rres = list()
     E = np.random.normal(0, 1, X.shape) * 40
     E[(X-E) < 0 ] = 0
 
@@ -140,13 +144,14 @@ def MUR_L1_ROBUST(X, D, R, lamb=0.05, steps=500, tol=1e-3):
         step += 1
         obj_aft = RobustNMF(X, D.dot(R), E, lamb)
         diff = obj_bef - obj_aft
+        rres.append(RRE(X_clean, D.dot(R)))
         print(step, obj_aft, diff)
 
 
-    return D, R, E
+    return D, R, E, rres
 
 
-def NMF(X, hidden_dim, iters, tol, obj="MSE"):
+def NMF(X, X_hat,hidden_dim, iters, tol, obj="MSE"):
     '''
         implementation of algorithm presented in 
         https://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization.pdf
@@ -159,19 +164,19 @@ def NMF(X, hidden_dim, iters, tol, obj="MSE"):
     E = np.zeros_like(X)
     if obj == "MSE":
         print("OBJ: MSE")
-        D, R = MUR_MSE(X, D, R, steps=iters, tol=tol)
+        D, R, rres = MUR_MSE(X, D, R, X_hat, steps=iters, tol=tol)
     elif obj == "KL":
         print("OBJ: KL")
-        D, R = MUR_KL(X, D, R, steps=iters, tol=tol)
+        D, R, rres = MUR_KL(X, D, R, X_hat, steps=iters, tol=tol)
     elif obj == "L21":
         print("OBJ: L21")
-        D, R= MUR_L21(X, D, R, steps=iters, tol=tol)
+        D, R, rres= MUR_L21(X, D, R, X_hat, steps=iters, tol=tol)
     elif obj == "ROBUSTL1":
         print("OBJ: ROBUSTL1")
-        D, R, E = MUR_L1_ROBUST(X, D, R, steps=iters, tol=tol)
+        D, R, E, rres = MUR_L1_ROBUST(X, D, R, X_hat, steps=iters, tol=tol)
     else:
-        D, R = MUR_MSE(X, D, R, steps=iters, tol=tol)
-    return D, R, E
+        D, R, rres = MUR_MSE(X, D, R, X_hat, steps=iters, tol=tol)
+    return D, R, E, rres
     
 
 

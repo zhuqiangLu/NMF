@@ -3,7 +3,11 @@ import numpy as np
 from PIL import Image
 
 
-def salt_and_pepper_noise(img, p=0.2, r=0.3, salt_depth=255, pepper_depth=0):
+
+def normalize(img):
+    return (img-img.min())/(img.max()-img.min())
+
+def salt_and_pepper_noise(img, p=0.2, r=0.3, salt_depth=1, pepper_depth=0):
     
     
 
@@ -25,17 +29,17 @@ def salt_and_pepper_noise(img, p=0.2, r=0.3, salt_depth=255, pepper_depth=0):
 
 
 
-def gaussian_noise(img, mu=0, sigma=64, k=1):
+def gaussian_noise(img, mu=0, sigma=64):
 
 
-    disrt = np.random.normal(mu, sigma, img.shape) * k
+    disrt = np.random.normal(mu, sigma, img.shape) 
 
     img = img + disrt  
     
 
     # truncate 
     img[img<0] = 0
-    img[img>255] = 255
+    img[img>255] = 1
 
 
     return img.astype(np.uint8)

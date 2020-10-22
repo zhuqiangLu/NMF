@@ -11,7 +11,7 @@ def parse_opt():
     parser.add_argument(
         '--epoch',
         type=int,
-        default=5
+        default=3
     )
 
     parser.add_argument(
@@ -23,7 +23,7 @@ def parse_opt():
     parser.add_argument(
         '--iters',
         type=int,
-        default=40
+        default=150
     )
 
     parser.add_argument(
@@ -64,7 +64,7 @@ def parse_opt():
     parser.add_argument(
         '--reduce',
         type=int,
-        default=4
+        default=5
     )
     parser.add_argument(
         '--split_ratio',
@@ -110,14 +110,9 @@ def parse_opt():
     parser.add_argument(
         '--sigma',
         type=int,
-        default=16
+        default=1
     )
-    # k
-    parser.add_argument(
-        '--k',
-        type=int,
-        default=2
-    )
+    
 
     
     

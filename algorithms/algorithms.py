@@ -79,7 +79,7 @@ def MUR_KL(X, D, R, steps=500, tol=1e-3):
         
     return D, R
 
-def MUR_L1_ROBUST(X, D, R, lamb=0.04, steps=500, tol=1e-3):
+def MUR_L1_ROBUST(X, D, R, lamb=0.05, steps=500, tol=1e-3):
 
     # n_features, n_samples= X.shape
 
@@ -106,7 +106,7 @@ def MUR_L1_ROBUST(X, D, R, lamb=0.04, steps=500, tol=1e-3):
         obj_bef = RobustNMF(X, D.dot(R), E, lamb)
         # update D
         X_hat = X-E
-        D = D * ((np.dot(X_hat, R.T))/(np.dot(np.dot(D, R), R.T)))
+        D = D * ((np.dot(X_hat, R.T))/((np.dot(np.dot(D, R), R.T)+1e-7)))
 
         #update R
         zeros = np.zeros((1, k))
@@ -125,7 +125,7 @@ def MUR_L1_ROBUST(X, D, R, lamb=0.04, steps=500, tol=1e-3):
         R_curl = np.vstack((R, E_p, E_n))
         #print(((D_curl.T.dot(D).dot(R_curl))).shape)
         
-        denom = (S.dot(R_curl))
+        denom = (S.dot(R_curl))+1e-7
         mol1 = D_curl.T.dot(D_curl).dot(R_curl)
         mol2 = D_curl.T.dot(X_curl)
         

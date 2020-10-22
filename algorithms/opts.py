@@ -17,13 +17,13 @@ def parse_opt():
     parser.add_argument(
         '--hidden_dim',
         type=int,
-        default=10
+        default=20
     )
 
     parser.add_argument(
         '--iters',
         type=int,
-        default=1
+        default=40
     )
 
     parser.add_argument(
@@ -110,14 +110,16 @@ def parse_opt():
     parser.add_argument(
         '--sigma',
         type=int,
-        default=1
+        default=16
     )
     # k
     parser.add_argument(
         '--k',
         type=int,
-        default=64
+        default=2
     )
+
+    
     
     
 

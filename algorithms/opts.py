@@ -44,7 +44,7 @@ def parse_opt():
     parser.add_argument(
         '--NMF_OBJ',
         type=str,
-        default="ROBUSTL1"
+        default=None
     )
 
 
@@ -113,6 +113,20 @@ def parse_opt():
         default=1
     )
     
+
+
+
+    parser.add_argument(
+        '--save_rres',
+        type=bool,
+        default=False
+    )
+
+    parser.add_argument(
+        '--save_np',
+        type=bool,
+        default=False
+    )
 
     
     
